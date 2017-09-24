@@ -1,0 +1,16 @@
+import std.meta
+
+//Small comment
+def func(id)
+{
+    if (1 < 2)
+    {
+        return (2.0e2 + 3.0e+05 <= 0);
+    }
+}
+
+/*
+Multi line
+comment...
+*/
+ 
