@@ -12,30 +12,30 @@
 
 int main()
 {
-	File file{"data/test.txt"};
+    File file{"data/test.txt"};
 
-	Index index;
+    Index index;
 
-	const auto& tokens = lexer::craftTokensAndIndex(file, index);
+    const auto& tokens = lexer::craftTokensAndIndex(file, index);
 
-	for (const auto& token : tokens)
-	{
-		const auto& location = lexer::searchLocation(token, file);
+    for (const auto& token : tokens)
+    {
+        const auto& location = lexer::searchLocation(token, file);
 
-		std::cout << std::left                          << std::setw(12)
+        std::cout << std::left                          << std::setw(12)
                   << token.asString()     << std::right << std::setw (2)
                   << location.line << ':' << std::right << std::setw (2)
-				  << location.col         << std::right << std::setw (4);
+                  << location.col         << std::right << std::setw (4);
 
-		const auto& lexeme = lexer::searchLexeme(token, index);
+        const auto& lexeme = lexer::searchLexeme(token, index);
 
-		if (!lexeme.empty())
-		{
-			std::cout << "(\"" << lexeme << "\")";
-		}
-	
-	  	std::cout << std::endl;
-	}
+        if (!lexeme.empty())
+        {
+            std::cout << "(\"" << lexeme << "\")";
+        }
+    
+        std::cout << std::endl;
+    }
 
     return EXIT_SUCCESS;
 }
