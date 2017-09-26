@@ -10,13 +10,12 @@
 #include <string>
 #include <vector>
 
+class FileMap;
+
 class File
 {
     friend bool        reader::isValid (const Reader& reader, const File& file);
     friend std::size_t reader::offset  (const Reader& reader, const File& file);
-
-    friend Location lexer::searchLocation(const Token& token, 
-                                          const File& file);
 
 public:
 
@@ -28,6 +27,8 @@ public:
 
     Reader craftReader() const;
 
+    FileMap craftFileMap() const;
+
 private:
 
     void checkPath(const std::string& pathAsString);
@@ -36,11 +37,8 @@ private:
                     std::size_t margin,
                     uint8_t fill);
 
-    void fillLines();
-
     const uint8_t*           _eof;
     std::vector<uint8_t>     _buffer;
-    std::vector<std::size_t> _lines;
 };
 
 

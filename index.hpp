@@ -4,20 +4,17 @@
 #include <unordered_map>
 #include <string>
 
-static const std::string EMPTY_STRING = "";
-
 class Index
 {
-    friend Token lexer::craftAndSaveToken(Index&             index,
-                                          uint8_t            tokenValue, 
-                                          std::size_t        tokenOffset, 
-                                          const std::string& lexeme);
 
-    friend const std::string& lexer::searchLexeme(const Token& token, 
-                                                  const Index& index);
 public:
 
-    Index() : _size{0} {}
+    Index();
+
+    std::size_t findOrSave(const std::string& lexeme);
+
+    const std::string& searchLexeme(const std::size_t lexemeID, 
+                                    const uint8_t     word);
 
 private:
 
@@ -26,6 +23,26 @@ private:
     std::unordered_map<std::size_t, std::string> _forward;
     std::unordered_map<std::string, std::size_t> _backward;
 };
+
+namespace index
+{
+
+struct Status
+{
+    enum : uint8_t
+    {
+        DROP_LEXEME,
+        SAVE_LEXEME
+    };
+
+    Status(uint8_t status) : value{status} {}
+
+    operator uint8_t() const { return value; }
+
+    uint8_t value;
+};
+
+} // end index namespace
 
 
 #endif

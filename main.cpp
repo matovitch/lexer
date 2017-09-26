@@ -1,4 +1,5 @@
 
+#include "file_map.hpp"
 #include "location.hpp"
 #include "lexer.hpp"
 #include "index.hpp"
@@ -7,35 +8,50 @@
 
 #include <algorithm>
 #include <iostream>
+#include <cstdlib>
 #include <iomanip>
 #include <string>
 
+
 int main()
 {
-	File file{"data/test.txt"};
+    File file{"data/test.txt"};
 
-	Index index;
+    Index index;
 
-	const auto& tokens = lexer::craftTokensAndIndex(file, index);
+    const auto& fileMap = file.craftFileMap();
 
-	for (const auto& token : tokens)
-	{
-		const auto& location = lexer::searchLocation(token, file);
+    auto&& tokens = lexer::craftTokensAndIndex(file, index);
 
-		std::cout << std::left                          << std::setw(12)
-                  << token.asString()     << std::right << std::setw (2)
-                  << location.line << ':' << std::right << std::setw (2)
-				  << location.col         << std::right << std::setw (4);
+    for (std::size_t i = 0; i < tokens.size(); i++)
+    {
+        const auto& word     = tokens.words[i];
+        const auto& location = fileMap .searchLocation (tokens.offsets[i]);
+        const auto& lexeme   = index   .searchLexeme   (tokens.lexemeIDs[i], word);
 
-		const auto& lexeme = lexer::searchLexeme(token, index);
+        std::cout                          << std::left  << std::setw(12)
+                  << token::asString(word) << std::right << std::setw (2)
+                  << location.line << ':'  << std::right << std::setw (2)
+                  << location.col          << std::right << std::setw (4);
 
-		if (!lexeme.empty())
-		{
-			std::cout << "(\"" << lexeme << "\")";
-		}
-	
-	  	std::cout << std::endl;
-	}
+        if (!lexeme.empty())
+        {
+            std::cout << "(\"" << lexeme << "\")";
+        }
+    
+        std::cout << std::endl;
+    }
+
+    // Trim white spaces and comments before parsing.
+    /*tokens.trim
+    (
+        []
+        (const Token& token)
+        { 
+            return token == token::WHITE_SPACE ||
+                   token == token::COMMENT;
+        }
+    );*/
 
     return EXIT_SUCCESS;
 }

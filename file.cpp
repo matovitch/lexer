@@ -1,5 +1,6 @@
 #include "file.hpp"
 
+#include "file_map.hpp"
 #include "reader.hpp"
 
 #include <experimental/filesystem>
@@ -19,12 +20,16 @@ File::File(const std::string& path,
 {
     checkPath  (path);
     fillBuffer (path, fill, margin);
-    fillLines  ();
 }
 
 Reader File::craftReader() const
 {
     return Reader{_buffer.data()};
+}
+
+FileMap File::craftFileMap() const
+{
+    return FileMap{*this};
 }
 
 void File::checkPath(const std::string& pathAsString)
@@ -74,26 +79,4 @@ void File::fillBuffer(const std::string& pathAsString,
     }
 
     _eof  = _buffer.data() + fileSize;
-}
-
-
-void File::fillLines()
-{
-    auto&& reader = craftReader();
-
-    _lines.push_back(0);
-
-    const auto& addLine = [&]() { _lines.push_back(reader::offset(reader, *this) + 1); };
-
-    while (reader::isValid(reader, *this))
-    {
-        if (reader.asChar() == '\n')
-        {
-            addLine();
-        }
-
-        reader += 1;
-    }
-
-    addLine();
 }

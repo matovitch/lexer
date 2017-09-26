@@ -62,38 +62,6 @@ bool isAlphaNumOrUnderscore(char c)
             isNum              (c));
 }
 
-const std::string& searchLexeme(const Token& token, 
-                                const Index& index)
-{
-    const auto& forwardIndex = index._forward;
-
-    const auto& fit = forwardIndex.find(token.lexeme);
-
-    if (fit != forwardIndex.end() &&
-        !((fit->second).empty()))
-    {
-        return fit->second;
-    }
-
-    return token::AS_LEXEME[token.value];
-}
-
-Location searchLocation(const Token& token, 
-                        const File& file)
-{
-    const auto& lines = file._lines;
-
-    const std::size_t offset = token.offset;
-
-    const auto& fit = std::lower_bound(lines.begin(),
-                                       lines.end(),
-                                       offset);
-    return { 
-               static_cast<std::size_t>(fit - lines.begin()),
-               static_cast<std::size_t>(offset - *(fit - 1))
-           };
-}
-
 bool matchKeyword(Reader& reader, const std::string& keyword)
 {
     reader.capture();
@@ -284,279 +252,203 @@ bool matchFloatting(Reader& reader)
     return false;
 }
 
-Token craftAndSaveToken(Index&             index,
-                        uint8_t            tokenValue, 
-                        std::size_t        tokenOffset, 
-                        const std::string& lexeme)
-{
-    const auto& craftToken = 
-        [
-            tokenValue,
-            tokenOffset
-        ]
-        ( 
-            std::size_t tokenLexeme 
-        )
-        {
-            return Token
-                   {
-                       tokenValue,
-                       tokenOffset,
-                       tokenLexeme
-                   };
-        };
-
-    auto&& backwardIndex = index._backward ;
-    auto&& forwardIndex  = index._forward  ;
-
-    const auto& fit = backwardIndex.find(lexeme);
-
-    std::size_t tokenLexeme;
-
-    if (fit != backwardIndex.end())
-    {
-        return craftToken(fit->second);
-    }
-
-    backwardIndex [ lexeme      ] = index._size ;
-    forwardIndex  [ index._size ] = lexeme      ;
-
-    return craftToken(index._size++);
-}
-
-enum IndexStatus
-{
-    DROP_LEXEME,
-    SAVE_LEXEME
-};
-
-std::vector<Token> craftTokensAndIndex(const File& file, Index& index)
+token::Vector craftTokensAndIndex(const File& file, Index& index)
 {
     auto&& reader = file.craftReader();
 
-    std::vector<Token> tokens;
+    token::Vector tokens{file, reader, index};
 
     while (reader::isValid(reader, file))
     {
-        const uint8_t* const base = reader();
-
-        const auto& craftToken = 
-            [
-                &reader,
-                &index,
-                &file, 
-                base
-            ]
-            (
-                uint8_t token, 
-                IndexStatus indexStatus = DROP_LEXEME
-            )
-            {
-                const uint8_t* const ptr = (indexStatus == DROP_LEXEME) ? reader()
-                                                                        : base;
-
-                return craftAndSaveToken
-                    (
-                        index,
-                        token,
-                        reader::offset(reader, file), 
-                        std::string
-                        {
-                            reinterpret_cast<const char*>(base),
-                            static_cast<std::size_t>(reader() - ptr)
-                        }
-                    );
-            };
-
         if (lexer::matchWhiteSpace(reader, file))
         {
-            tokens.push_back(craftToken(Token::WHITE_SPACE));
+            tokens.pushBack(token::WHITE_SPACE);
             continue;
         }
         if (lexer::matchComment(reader, file))
         {
-            tokens.push_back(craftToken(Token::COMMENT));
+            tokens.pushBack(token::COMMENT);
             continue;
         }
         if (lexer::matchKeyword(reader, "module"))
         {
-            tokens.push_back(craftToken(Token::IMPORT));
+            tokens.pushBack(token::MODULE);
             continue;
         }
         if (lexer::matchKeyword(reader, "import"))
         {
-            tokens.push_back(craftToken(Token::IMPORT));
+            tokens.pushBack(token::IMPORT);
             continue;
         }
         if (lexer::matchKeyword(reader, "return"))
         {
-            tokens.push_back(craftToken(Token::RETURN));
+            tokens.pushBack(token::RETURN);
             continue;
         }
         if (lexer::matchKeyword(reader, "alias"))
         {
-            tokens.push_back(craftToken(Token::ALIAS));
+            tokens.pushBack(token::ALIAS);
             continue;
         }
         if (lexer::matchKeyword(reader, "if"))
         {
-            tokens.push_back(craftToken(Token::IF));
+            tokens.pushBack(token::IF);
             continue;
         }
         if (lexer::matchKeyword(reader, "then"))
         {
-            tokens.push_back(craftToken(Token::THEN));
+            tokens.pushBack(token::THEN);
             continue;
         }
         if (lexer::matchKeyword(reader, "else"))
         {
-            tokens.push_back(craftToken(Token::ELSE));
+            tokens.pushBack(token::ELSE);
             continue;
         }
         if (lexer::matchKeyword(reader, "while"))
         {
-            tokens.push_back(craftToken(Token::WHILE));
+            tokens.pushBack(token::WHILE);
             continue;
         }
         if (lexer::matchFloatting(reader))
         {
-            tokens.push_back(craftToken(Token::FLOATTING, SAVE_LEXEME));
+            tokens.pushBack(token::FLOATTING, index::Status::SAVE_LEXEME);
             continue;
         }
         if (lexer::matchInteger(reader))
         {
-            tokens.push_back(craftToken(Token::INTEGER, SAVE_LEXEME));
+            tokens.pushBack(token::INTEGER, index::Status::SAVE_LEXEME);
             continue;
         }
         if (lexer::matchIdentifier(reader))
         {
-            tokens.push_back(craftToken(Token::IDENTIFIER, SAVE_LEXEME));
+            tokens.pushBack(token::IDENTIFIER, index::Status::SAVE_LEXEME);
             continue;
         }
         if (reader.match("=="))
         {
-            tokens.push_back(craftToken(Token::C_EQL));
+            tokens.pushBack(token::C_EQL);
             continue;
         }
         if (reader.match("!="))
         {
-            tokens.push_back(craftToken(Token::C_NEQ));
+            tokens.pushBack(token::C_NEQ);
             continue;
         }
         if (reader.match("&&"))
         {
-            tokens.push_back(craftToken(Token::C_AND));
+            tokens.pushBack(token::C_AND);
             continue;
         }
         if (reader.match("||"))
         {
-            tokens.push_back(craftToken(Token::C_OR));
+            tokens.pushBack(token::C_OR);
             continue;
         }
         if (reader.match("<="))
         {
-            tokens.push_back(craftToken(Token::LEQ));
+            tokens.pushBack(token::LEQ);
             continue;
         }
         if (reader.match(">="))
         {
-            tokens.push_back(craftToken(Token::GEQ));
+            tokens.pushBack(token::GEQ);
             continue;
         }
         if (reader.match('('))
         {
-            tokens.push_back(craftToken(Token::L_PARENT));
+            tokens.pushBack(token::L_PARENT);
             continue;
         }
         if (reader.match(')'))
         {
-            tokens.push_back(craftToken(Token::R_PARENT));
+            tokens.pushBack(token::R_PARENT);
             continue;
         }
         if (reader.match('{'))
         {
-            tokens.push_back(craftToken(Token::L_BRACE));
+            tokens.pushBack(token::L_BRACE);
             continue;
         }
         if (reader.match('}'))
         {
-            tokens.push_back(craftToken(Token::R_BRACE));
+            tokens.pushBack(token::R_BRACE);
             continue;
         }
         if (reader.match(';'))
         {
-            tokens.push_back(craftToken(Token::SEMI_COLON));
+            tokens.pushBack(token::SEMI_COLON);
             continue;
         }
         if (reader.match('.'))
         {
-            tokens.push_back(craftToken(Token::DOT));
+            tokens.pushBack(token::DOT);
             continue;
         }
         if (reader.match('+'))
         {
-            tokens.push_back(craftToken(Token::ADD));
+            tokens.pushBack(token::ADD);
             continue;
         }
         if (reader.match('-'))
         {
-            tokens.push_back(craftToken(Token::SUB));
+            tokens.pushBack(token::SUB);
             continue;
         }
         if (reader.match('*'))
         {
-            tokens.push_back(craftToken(Token::MUL));
+            tokens.pushBack(token::MUL);
             continue;
         }
         if (reader.match('/'))
         {
-            tokens.push_back(craftToken(Token::DIV));
+            tokens.pushBack(token::DIV);
             continue;
         }
         if (reader.match('%'))
         {
-            tokens.push_back(craftToken(Token::MOD));
+            tokens.pushBack(token::MOD);
             continue;
         }
         if (reader.match('<'))
         {
-            tokens.push_back(craftToken(Token::LST));
+            tokens.pushBack(token::LST);
             continue;
         }
         if (reader.match('>'))
         {
-            tokens.push_back(craftToken(Token::GST));
+            tokens.pushBack(token::GST);
             continue;
         }
         if (reader.match('='))
         {
-            tokens.push_back(craftToken(Token::EQL));
+            tokens.pushBack(token::EQL);
             continue;
         }
         if (reader.match('&'))
         {
-            tokens.push_back(craftToken(Token::AND));
+            tokens.pushBack(token::AND);
             continue;
         }
         if (reader.match('!'))
         {
-            tokens.push_back(craftToken(Token::NOT));
+            tokens.pushBack(token::NOT);
             continue;
         }
         if (reader.match('^'))
         {
-            tokens.push_back(craftToken(Token::XOR));
+            tokens.pushBack(token::XOR);
             continue;
         }
         if (reader.match('|'))
         {
-            tokens.push_back(craftToken(Token::OR));
+            tokens.pushBack(token::OR);
             continue;
         }
 
         reader += 1;
 
-        tokens.push_back(craftToken(Token::UKNOWN, SAVE_LEXEME));
+        tokens.pushBack(token::UKNOWN, index::Status::SAVE_LEXEME);
     }
 
     return tokens;

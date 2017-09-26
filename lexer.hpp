@@ -1,14 +1,19 @@
 #ifndef __LEXER_H__
 #define __LEXER_H__
 
-#include <vector>
+#include "location.hpp"
+#include "reader.hpp"
+#include "index.hpp"
+#include "file.hpp"
+
 #include <string>
 
-class Location;
-class Reader;
-class Token;
-class Index;
-class File;
+namespace token
+{
+
+class Vector;
+
+} // end token namespace
 
 namespace lexer
 {
@@ -25,18 +30,7 @@ bool matchFloatting(Reader& reader);
 
 bool matchInteger(Reader& reader);
 
-Token craftAndSaveToken(Index&             index,
-                        uint8_t            tokenValue, 
-                        std::size_t        tokenOffset, 
-                        const std::string& lexeme);
-
-std::vector<Token> craftTokensAndIndex(const File& file, Index& index);
-
-const std::string& searchLexeme(const Token& token, 
-                                const Index& index);
-
-Location searchLocation(const Token& token, 
-                        const File& file);
+token::Vector craftTokensAndIndex(const File& file, Index& index);
 
 } // end lexer namespace
 
