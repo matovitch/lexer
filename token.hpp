@@ -160,6 +160,31 @@ public:
 
     std::size_t size() const;
 
+
+    template <class UnaryPred>
+    void trim(const UnaryPred& isTrimable)
+    {
+        std::vector<Token>       trimedWords;
+        std::vector<std::size_t> trimedOffsets;
+        std::vector<std::size_t> trimedLexemeIDs;
+
+        for (std::size_t i = 0; i < size(); i++)
+        {
+            const auto& word = words[i];
+
+            if (!isTrimable(word))
+            {
+                trimedWords     .push_back(word        );
+                trimedOffsets   .push_back(offsets[i]  );
+                trimedLexemeIDs .push_back(lexemeIDs[i]);
+            }
+        }
+
+        std::swap(words    , trimedWords    );
+        std::swap(offsets  , trimedOffsets  );
+        std::swap(lexemeIDs, trimedLexemeIDs);
+    }
+
 private:
 
     const File&    _file;

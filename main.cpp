@@ -43,7 +43,7 @@ int main()
     }
 
     // Trim white spaces and comments before parsing.
-    /*tokens.trim
+    tokens.trim
     (
         []
         (const Token& token)
@@ -51,7 +51,9 @@ int main()
             return token == token::WHITE_SPACE ||
                    token == token::COMMENT;
         }
-    );*/
+    );
+
+    //start parsing here...
 
     return EXIT_SUCCESS;
 }
