@@ -1,0 +1,18 @@
+ROOT = $(TUP_CWD)
+
+CX = g++
+
+CXFLAGS  = -Wall
+CXFLAGS += -pedantic
+CXFLAGS += -std=c++17
+
+ifeq (@(DEBUG),y)
+    CXFLAGS += -g
+else
+    CXFLAGS += -O3
+endif
+
+LDFLAGS += -l stdc++fs
+
+!cx = |> $(CX) $(CXFLAGS) -c %f -o %o |> %B.o
+!ld = |> $(CX) %f $(LDFLAGS) -o %o |>

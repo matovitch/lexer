@@ -19,7 +19,7 @@ File::File(const std::string& path,
     _eof{NULL}
 {
     checkPath  (path);
-    fillBuffer (path, fill, margin);
+    fillBuffer (path, margin, fill);
 }
 
 Reader File::craftReader() const

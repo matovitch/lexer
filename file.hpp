@@ -22,7 +22,7 @@ public:
     File() = delete;
 
     File(const std::string& path,
-         std::size_t margin = 0xff,
+         std::size_t margin = 0x20,
          uint8_t fill = 0x20);
 
     Reader craftReader() const;

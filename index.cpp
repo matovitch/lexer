@@ -13,8 +13,6 @@ std::size_t Index::findOrSave(const std::string& lexeme)
 {
     const auto& fit = _backward.find(lexeme);
 
-    std::size_t tokenLexeme;
-
     if (fit != _backward.end())
     {
         return fit->second;

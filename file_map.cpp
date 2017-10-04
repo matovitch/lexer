@@ -13,8 +13,6 @@ FileMap::FileMap(const File& file)
 
 Location FileMap::searchLocation(const uint8_t offset) const
 {
-    const auto& lines = _lines;
-
     const auto& fit = std::lower_bound(_lines.begin(),
                                        _lines.end(),
                                        offset);

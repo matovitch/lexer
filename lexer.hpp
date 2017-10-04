@@ -18,18 +18,6 @@ class Vector;
 namespace lexer
 {
 
-bool matchKeyword(Reader& reader, const std::string& keyword);
-
-bool matchComment(Reader& reader, const File& file);
-
-bool matchWhiteSpace(Reader& reader, const File& file);
-
-bool matchIdentifier(Reader& reader);
-
-bool matchFloatting(Reader& reader);
-
-bool matchInteger(Reader& reader);
-
 token::Vector craftTokensAndIndex(const File& file, Index& index);
 
 } // end lexer namespace

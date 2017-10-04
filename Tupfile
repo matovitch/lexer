@@ -1,0 +1,6 @@
+include_rules
+
+OBJS = $(ROOT)/*.o
+
+: foreach *.cpp |> !cx |> %B.o
+: $(OBJS) |> !ld |> lexer
