@@ -1,3 +1,4 @@
 .tup/
-build/
+build/*.o
+build/lexer
 a.out
