@@ -6,12 +6,30 @@
         {
             "taskName": "build",
             "type": "shell",
-            "command": "tup",
+            "command": "guake -e \"tup ;and ${workspaceRoot}/build/lexer\"; guake -t",
+            "problemMatcher": "$gcc",
             "group": {
                 "kind": "build",
                 "isDefault": true
             },
-            "problemMatcher": "$gcc"
+            "presentation": {
+                "echo": false,
+                "reveal": "never",
+                "focus": false,
+                "panel": "shared"
+            }
+        },
+        {
+            "taskName": "buildForDebug",
+            "type": "shell",
+            "command": "tup",
+            "problemMatcher": "$gcc",
+            "presentation": {
+                "echo": false,
+                "reveal": "never",
+                "focus": false,
+                "panel": "shared"
+            }
         }
     ]
 }
