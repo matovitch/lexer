@@ -29,11 +29,11 @@ int main()
 
         for (std::size_t i = 0; i < tokens.size(); i++)
         {
-            const auto& word     = tokens.words[i];
+            const auto& word     = tokens  .words[i];
             const auto& location = fileMap .searchLocation (tokens.offsets[i]);
             const auto& lexeme   = index   .searchLexeme   (tokens.lexemeIDs[i], word);
 
-            std::cout                          << std::left  << std::setw(12)
+            std::cout                        << std::left  << std::setw(12)
                     << token::asString(word) << std::right << std::setw (2)
                     << location.line << ':'  << std::right << std::setw (2)
                     << location.col          << std::right << std::setw (4);
