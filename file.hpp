@@ -6,9 +6,11 @@
 #include "token.hpp"
 #include "lexer.hpp"
 
+#include <system_error>
 #include <cstddef>
 #include <string>
 #include <vector>
+#include <tuple>
 
 class FileMap;
 
@@ -21,17 +23,19 @@ public:
 
     File() = delete;
 
-    File(const std::string& path,
+    File(const std::string& pathAsString,
+         std::error_code& errorCode,
          std::size_t margin = 0x20,
          uint8_t fill = 0x20);
 
-    Reader craftReader() const;
+    Reader makeReader() const;
 
-    FileMap craftFileMap() const;
+    FileMap makeFileMap() const;
 
 private:
 
-    void checkPath(const std::string& pathAsString);
+    void checkPath(const std::string& pathAsString,
+                   std::error_code& errorCode);
 
     void fillBuffer(const std::string& pathAsString,
                     std::size_t margin,
@@ -41,5 +45,10 @@ private:
     std::vector<uint8_t>     _buffer;
 };
 
+namespace file
+{
+    std::tuple<File, std::error_code> make(const std::string pathAsString);
+
+} // end file namespace
 
 #endif // end __FILE_H__

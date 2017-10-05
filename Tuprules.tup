@@ -1,6 +1,6 @@
 ROOT = $(TUP_CWD)
 
-CX = g++
+CX = g++-7
 
 CXFLAGS  = -Wall
 CXFLAGS += -pedantic

@@ -24,7 +24,7 @@ Location FileMap::searchLocation(const uint8_t offset) const
 
 void FileMap::fillLines(const File& file)
 {
-    auto&& reader = file.craftReader();
+    auto&& reader = file.makeReader();
 
     _lines.push_back(0);
 

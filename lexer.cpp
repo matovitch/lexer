@@ -252,9 +252,9 @@ bool matchFloatting(Reader& reader)
     return false;
 }
 
-token::Vector craftTokensAndIndex(const File& file, Index& index)
+token::Vector makeTokensAndIndex(const File& file, Index& index)
 {
-    auto&& reader = file.craftReader();
+    auto&& reader = file.makeReader();
 
     token::Vector tokens{file, reader, index};
 

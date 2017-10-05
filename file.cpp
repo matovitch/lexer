@@ -2,48 +2,58 @@
 
 #include "file_map.hpp"
 #include "reader.hpp"
+#include "error.hpp"
 
 #include <experimental/filesystem>
-#include <exception>
+#include <system_error>
 #include <cstddef>
 #include <fstream>
 #include <string>
 #include <vector>
+#include <tuple>
 #include <ios>
 
 namespace stdx = std::experimental;
 
-File::File(const std::string& path,
+File::File(const std::string& pathAsString,
+           std::error_code& error,
            std::size_t margin,
            uint8_t fill) :
     _eof{NULL}
 {
-    checkPath  (path);
-    fillBuffer (path, margin, fill);
+    checkPath (pathAsString, error);
+
+    if (!error)
+    {
+        fillBuffer(pathAsString, margin, fill);
+    }
 }
 
-Reader File::craftReader() const
+Reader File::makeReader() const
 {
     return Reader{_buffer.data()};
 }
 
-FileMap File::craftFileMap() const
+FileMap File::makeFileMap() const
 {
     return FileMap{*this};
 }
 
-void File::checkPath(const std::string& pathAsString)
+void File::checkPath(const std::string& pathAsString,
+                     std::error_code& errorCode)
 {
     stdx::filesystem::path path{pathAsString};
 
     if (!stdx::filesystem::exists(path))
     {
-        throw std::runtime_error(path.string() + ": file not found.");
+        errorCode = error::make(Error::FILE_NOT_FOUND);
+        return;
     }
 
     if (!stdx::filesystem::is_regular_file(path))
     {
-        throw std::runtime_error(path.string() + ": this is not a regular file.");
+        errorCode = error::make(Error::FILE_NOT_REGULAR);
+        return;
     }
 }
 
@@ -80,3 +90,14 @@ void File::fillBuffer(const std::string& pathAsString,
 
     _eof  = _buffer.data() + fileSize;
 }
+
+namespace file
+{
+    std::tuple<File, std::error_code> make(const std::string pathAsString)
+    {
+        std::error_code errorCode;
+
+        return std::make_tuple(File{pathAsString, errorCode}, errorCode);
+    }
+
+} // end file namespace
