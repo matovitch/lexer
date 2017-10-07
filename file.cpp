@@ -19,7 +19,7 @@ File::File(const std::string& pathAsString,
            std::size_t margin,
            uint8_t fill) :
     _eof{NULL},
-    _pathAsString{pathAsString}
+    pathAsString{pathAsString}
 {
     checkPath (pathAsString, error);
 
@@ -37,11 +37,6 @@ Reader File::makeReader() const
 file::Map File::makeMap() const
 {
     return file::Map{*this};
-}
-
-const std::string& File::pathAsString() const
-{
-    return _pathAsString;
 }
 
 void File::checkPath(const std::string& pathAsString,

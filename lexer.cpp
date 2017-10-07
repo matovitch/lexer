@@ -252,206 +252,206 @@ bool matchFloatting(Reader& reader)
     return false;
 }
 
-token::Vector makeTokenVector(const File& file)
+} // end lexer namespace
+
+void Lexer::lex(const File& file)
 {
     auto&& reader = file.makeReader();
-
-    token::Vector tokens{file, reader};
+    
+    token::Vector tokenVector{file, reader, _index};
 
     while (reader::isValid(reader, file))
     {
         if (lexer::matchWhiteSpace(reader, file))
         {
-            tokens.pushBack(token::WHITE_SPACE);
+            tokenVector.pushBack(token::WHITE_SPACE);
             continue;
         }
         if (lexer::matchComment(reader, file))
         {
-            tokens.pushBack(token::COMMENT);
+            tokenVector.pushBack(token::COMMENT);
             continue;
         }
         if (lexer::matchKeyword(reader, "module"))
         {
-            tokens.pushBack(token::MODULE);
+            tokenVector.pushBack(token::MODULE);
             continue;
         }
         if (lexer::matchKeyword(reader, "import"))
         {
-            tokens.pushBack(token::IMPORT);
+            tokenVector.pushBack(token::IMPORT);
             continue;
         }
         if (lexer::matchKeyword(reader, "return"))
         {
-            tokens.pushBack(token::RETURN);
+            tokenVector.pushBack(token::RETURN);
             continue;
         }
         if (lexer::matchKeyword(reader, "alias"))
         {
-            tokens.pushBack(token::ALIAS);
+            tokenVector.pushBack(token::ALIAS);
             continue;
         }
         if (lexer::matchKeyword(reader, "if"))
         {
-            tokens.pushBack(token::IF);
+            tokenVector.pushBack(token::IF);
             continue;
         }
         if (lexer::matchKeyword(reader, "then"))
         {
-            tokens.pushBack(token::THEN);
+            tokenVector.pushBack(token::THEN);
             continue;
         }
         if (lexer::matchKeyword(reader, "else"))
         {
-            tokens.pushBack(token::ELSE);
+            tokenVector.pushBack(token::ELSE);
             continue;
         }
         if (lexer::matchKeyword(reader, "while"))
         {
-            tokens.pushBack(token::WHILE);
+            tokenVector.pushBack(token::WHILE);
             continue;
         }
         if (lexer::matchFloatting(reader))
         {
-            tokens.pushBack(token::FLOATTING, index::Status::SAVE_LEXEME);
+            tokenVector.pushBack(token::FLOATTING, index::Status::SAVE_LEXEME);
             continue;
         }
         if (lexer::matchInteger(reader))
         {
-            tokens.pushBack(token::INTEGER, index::Status::SAVE_LEXEME);
+            tokenVector.pushBack(token::INTEGER, index::Status::SAVE_LEXEME);
             continue;
         }
         if (lexer::matchIdentifier(reader))
         {
-            tokens.pushBack(token::IDENTIFIER, index::Status::SAVE_LEXEME);
+            tokenVector.pushBack(token::IDENTIFIER, index::Status::SAVE_LEXEME);
             continue;
         }
         if (reader.match("=="))
         {
-            tokens.pushBack(token::C_EQL);
+            tokenVector.pushBack(token::C_EQL);
             continue;
         }
         if (reader.match("!="))
         {
-            tokens.pushBack(token::C_NEQ);
+            tokenVector.pushBack(token::C_NEQ);
             continue;
         }
         if (reader.match("&&"))
         {
-            tokens.pushBack(token::C_AND);
+            tokenVector.pushBack(token::C_AND);
             continue;
         }
         if (reader.match("||"))
         {
-            tokens.pushBack(token::C_OR);
+            tokenVector.pushBack(token::C_OR);
             continue;
         }
         if (reader.match("<="))
         {
-            tokens.pushBack(token::LEQ);
+            tokenVector.pushBack(token::LEQ);
             continue;
         }
         if (reader.match(">="))
         {
-            tokens.pushBack(token::GEQ);
+            tokenVector.pushBack(token::GEQ);
             continue;
         }
         if (reader.match('('))
         {
-            tokens.pushBack(token::L_PARENT);
+            tokenVector.pushBack(token::L_PARENT);
             continue;
         }
         if (reader.match(')'))
         {
-            tokens.pushBack(token::R_PARENT);
+            tokenVector.pushBack(token::R_PARENT);
             continue;
         }
         if (reader.match('{'))
         {
-            tokens.pushBack(token::L_BRACE);
+            tokenVector.pushBack(token::L_BRACE);
             continue;
         }
         if (reader.match('}'))
         {
-            tokens.pushBack(token::R_BRACE);
+            tokenVector.pushBack(token::R_BRACE);
             continue;
         }
         if (reader.match(';'))
         {
-            tokens.pushBack(token::SEMI_COLON);
+            tokenVector.pushBack(token::SEMI_COLON);
             continue;
         }
         if (reader.match('.'))
         {
-            tokens.pushBack(token::DOT);
+            tokenVector.pushBack(token::DOT);
             continue;
         }
         if (reader.match('+'))
         {
-            tokens.pushBack(token::ADD);
+            tokenVector.pushBack(token::ADD);
             continue;
         }
         if (reader.match('-'))
         {
-            tokens.pushBack(token::SUB);
+            tokenVector.pushBack(token::SUB);
             continue;
         }
         if (reader.match('*'))
         {
-            tokens.pushBack(token::MUL);
+            tokenVector.pushBack(token::MUL);
             continue;
         }
         if (reader.match('/'))
         {
-            tokens.pushBack(token::DIV);
+            tokenVector.pushBack(token::DIV);
             continue;
         }
         if (reader.match('%'))
         {
-            tokens.pushBack(token::MOD);
+            tokenVector.pushBack(token::MOD);
             continue;
         }
         if (reader.match('<'))
         {
-            tokens.pushBack(token::LST);
+            tokenVector.pushBack(token::LST);
             continue;
         }
         if (reader.match('>'))
         {
-            tokens.pushBack(token::GST);
+            tokenVector.pushBack(token::GST);
             continue;
         }
         if (reader.match('='))
         {
-            tokens.pushBack(token::EQL);
+            tokenVector.pushBack(token::EQL);
             continue;
         }
         if (reader.match('&'))
         {
-            tokens.pushBack(token::AND);
+            tokenVector.pushBack(token::AND);
             continue;
         }
         if (reader.match('!'))
         {
-            tokens.pushBack(token::NOT);
+            tokenVector.pushBack(token::NOT);
             continue;
         }
         if (reader.match('^'))
         {
-            tokens.pushBack(token::XOR);
+            tokenVector.pushBack(token::XOR);
             continue;
         }
         if (reader.match('|'))
         {
-            tokens.pushBack(token::OR);
+            tokenVector.pushBack(token::OR);
             continue;
         }
 
         reader += 1;
 
-        tokens.pushBack(token::UKNOWN, index::Status::SAVE_LEXEME);
+        tokenVector.pushBack(token::UKNOWN, index::Status::SAVE_LEXEME);
     }
-
-    return tokens;
+    
+    tokenVectors.emplace_back(tokenVector);
 }
-
-} // end lexer namespace

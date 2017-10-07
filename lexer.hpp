@@ -15,11 +15,20 @@ class Vector;
 
 } // end token namespace
 
-namespace lexer
+class Lexer
 {
 
-token::Vector makeTokenVector(const File& file);
+public:
+    
+    void lex(const File& file);
 
-} // end lexer namespace
+private:
+
+    Index _index;
+
+public:
+
+    std::vector<token::Vector> tokenVectors;
+};
 
 #endif // end __LEXER_H__

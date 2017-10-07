@@ -19,12 +19,12 @@ const std::string& asString(uint8_t word)
     return AS_STRING[word];
 }
 
-Index Vector::_index;
-
 Vector::Vector(const File   & file,
-               const Reader & reader) :
+               const Reader & reader,
+               Index        & index) :
     _file       {file},
     _reader     {reader},
+    _index      {index},
     _fileMap    {file.makeMap()},
     _prevReader {reader()},
     _prevOffset {1}
@@ -37,7 +37,7 @@ std::size_t Vector::size() const
 
 const std::string& Vector::filePath() const
 {
-    return _file.pathAsString();
+    return _file.pathAsString;
 }
 
 void Vector::pushBack(const Token word, 

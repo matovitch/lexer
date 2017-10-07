@@ -155,7 +155,8 @@ class Vector
 public:
 
     Vector(const File   & file,
-           const Reader & reader);
+           const Reader & reader,
+           Index& index);
 
     std::size_t size() const;
 
@@ -190,10 +191,9 @@ public:
 
 private:
 
-    static Index _index;
-
     const File&    _file;
     const Reader&  _reader;
+    Index&         _index;
  
     const file::Map _fileMap;
 

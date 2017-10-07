@@ -37,8 +37,6 @@ public:
 
     file::Map makeMap() const;
 
-    const std::string& pathAsString() const;
-
     void freeBuffer();
 
 private:
@@ -52,7 +50,10 @@ private:
 
     const uint8_t*           _eof;
     std::vector<uint8_t>     _buffer;
-    const std::string        _pathAsString;
+
+public:
+
+    const std::string pathAsString;
 };
 
 namespace file
