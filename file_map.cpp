@@ -3,9 +3,8 @@
 #include "location.hpp"
 #include "file.hpp"
 
-#include <cstddef>
+#include <cstdint>
 #include <vector>
-#include <string>
 
 namespace file
 {

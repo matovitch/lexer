@@ -1,7 +1,7 @@
 #ifndef __LOCATION_H__
 #define __LOCATION_H__
 
-#include <cstddef>
+#include <cstdint>
 
 struct Location
 {

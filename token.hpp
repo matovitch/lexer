@@ -6,7 +6,7 @@
 #include "index.hpp"
 #include "file.hpp"
 
-#include <cstddef>
+#include <cstdint>
 #include <string>
 #include <vector>
 

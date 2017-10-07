@@ -2,7 +2,7 @@
 
 #include "file.hpp"
 
-#include <cstddef>
+#include <cstdint>
 
 Reader::Reader(const uint8_t* const head) : 
     _head{head}

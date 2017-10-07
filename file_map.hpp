@@ -5,7 +5,6 @@
 
 #include <cstdint>
 #include <vector>
-#include <string>
 
 class File;
 

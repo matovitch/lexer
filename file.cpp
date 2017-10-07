@@ -1,12 +1,11 @@
 #include "file.hpp"
 
 #include "file_map.hpp"
-#include "location.hpp"
 #include "reader.hpp"
 #include "error.hpp"
 
 #include <experimental/filesystem>
-#include <cstddef>
+#include <cstdint>
 #include <fstream>
 #include <string>
 #include <vector>

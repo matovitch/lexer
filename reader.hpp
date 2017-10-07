@@ -1,7 +1,7 @@
 #ifndef __READER_H__
 #define __READER_H__
 
-#include <cstddef>
+#include <cstdint>
 #include <string>
 
 class Reader;

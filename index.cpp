@@ -2,12 +2,10 @@
 
 #include "token.hpp"
 
-#include <cstddef>
+#include <cstdint>
 #include <string>
 
-
 Index::Index() : _size{1} {}
-
 
 std::size_t Index::findOrSave(const std::string& lexeme)
 {

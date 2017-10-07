@@ -7,7 +7,7 @@
 #include "token.hpp"
 #include "lexer.hpp"
 
-#include <cstddef>
+#include <cstdint>
 #include <string>
 #include <vector>
 #include <tuple>

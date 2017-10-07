@@ -12,16 +12,21 @@
 #include <iomanip>
 #include <string>
 
-int main(int argc, char** argv)
+std::vector<std::string> makeArgs(int argc, char** argv)
 {
     std::vector<std::string> args;
-
+    
     for (int i = 1; i < argc; i++)
     {
         args.emplace_back(argv[i]);
     }
 
-    std::vector<token::Vector> tokenVectors;
+    return args;
+}
+
+int main(int argc, char** argv)
+{
+    const auto& args = makeArgs(argc, argv);
 
     for (const auto& filePath : args)
     {
@@ -29,12 +34,31 @@ int main(int argc, char** argv)
 
         if (!error)
         {
+            std::vector<token::Vector> tokenVectors;
+
             tokenVectors.emplace_back
             (
                 lexer::makeTokenVector(file)
             );
 
             file.freeBuffer(); // save some memory
+
+            auto&& tokenVector = tokenVectors.back();
+            
+            std::cout << tokenVector << std::endl;
+    
+            // Trim white spaces and comments before parsing 
+            tokenVector.trim
+            (
+                []
+                (const Token& token)
+                { 
+                    return token == token::WHITE_SPACE ||
+                           token == token::COMMENT;
+                }
+            );
+
+            // TODO start parsing here
         }
         else if (error == Error::FILE_NOT_FOUND)
         {
@@ -51,21 +75,6 @@ int main(int argc, char** argv)
             std::cerr << "Unkown error." << std::endl;
             return EXIT_FAILURE;            
         }
-
-        auto&& tokenVector = tokenVectors.back();
-
-        std::cout << tokenVector << std::endl;
-
-        // Trim white spaces and comments before parsing 
-        tokenVector.trim
-        (
-            []
-            (const Token& token)
-            { 
-                return token == token::WHITE_SPACE ||
-                       token == token::COMMENT;
-            }
-        );
     }
 
     return EXIT_SUCCESS;
