@@ -50,11 +50,10 @@ int main(int argc, char** argv)
         {
             std::cerr << "Unkown error." << std::endl;
             return EXIT_FAILURE;            
-        }    
-    }
+        }
 
-    for (auto&& tokenVector : tokenVectors)
-    {
+        auto&& tokenVector = tokenVectors.back();
+
         std::cout << tokenVector << std::endl;
 
         // Trim white spaces and comments before parsing 
