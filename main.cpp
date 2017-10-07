@@ -1,8 +1,5 @@
 
-#include "file_map.hpp"
-#include "location.hpp"
 #include "lexer.hpp"
-#include "index.hpp"
 #include "token.hpp"
 #include "error.hpp"
 #include "file.hpp"
