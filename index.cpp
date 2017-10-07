@@ -25,7 +25,7 @@ std::size_t Index::findOrSave(const std::string& lexeme)
 }
 
 const std::string& Index::searchLexeme(const std::size_t lexemeID, 
-                                       const uint8_t     word)
+                                       const uint8_t     word) const
 {
     const auto& fit = _forward.find(lexemeID);
 

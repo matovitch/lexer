@@ -14,7 +14,7 @@ public:
     std::size_t findOrSave(const std::string& lexeme);
 
     const std::string& searchLexeme(const std::size_t lexemeID, 
-                                    const uint8_t     word);
+                                    const uint8_t     word) const;
 
 private:
 

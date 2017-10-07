@@ -5,15 +5,19 @@
 
 #include <cstdint>
 #include <vector>
+#include <string>
 
 class File;
 
-class FileMap
+namespace file
+{
+
+class Map
 {
 
 public:
 
-    FileMap(const File& file);
+    Map(const File& file);
 
     Location searchLocation(const uint8_t offset) const;
 
@@ -24,5 +28,6 @@ private:
     std::vector<std::size_t> _lines;
 };
 
+} // end file namespace
 
 #endif // __FILE_MAP_H__

@@ -4,25 +4,29 @@
 #include "file.hpp"
 
 #include <cstddef>
+#include <vector>
+#include <string>
 
+namespace file
+{
 
-FileMap::FileMap(const File& file)
+Map::Map(const File& file)
 {
     fillLines(file);
 }
 
-Location FileMap::searchLocation(const uint8_t offset) const
+Location Map::searchLocation(const uint8_t offset) const
 {
     const auto& fit = std::lower_bound(_lines.begin(),
-                                       _lines.end(),
-                                       offset);
+                                        _lines.end(),
+                                        offset);
     return {
-               static_cast<std::size_t>(fit - _lines.begin()),
-               static_cast<std::size_t>(offset - *(fit - 1))
-           };
+                static_cast<std::size_t>(fit - _lines.begin()),
+                static_cast<std::size_t>(offset - *(fit - 1))
+            };
 }
 
-void FileMap::fillLines(const File& file)
+void Map::fillLines(const File& file)
 {
     auto&& reader = file.makeReader();
 
@@ -41,5 +45,6 @@ void FileMap::fillLines(const File& file)
     }
 
     addLine();
-
 }
+    
+} // end file namespace

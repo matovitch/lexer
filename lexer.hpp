@@ -18,7 +18,7 @@ class Vector;
 namespace lexer
 {
 
-token::Vector makeTokensAndIndex(const File& file, Index& index);
+token::Vector makeTokenVector(const File& file);
 
 } // end lexer namespace
 

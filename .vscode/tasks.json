@@ -6,7 +6,7 @@
         {
             "taskName": "build",
             "type": "shell",
-            "command": "guake -e \"cd ${workspaceRoot}; tup ;and ./build/lexer\"; guake -t",
+            "command": "guake -e \"cd ${workspaceRoot}; tup ;and ./build/lexer ./data/*\"; guake -t",
             "problemMatcher": "$gcc",
             "group": {
                 "kind": "build",

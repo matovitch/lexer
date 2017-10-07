@@ -1,6 +1,7 @@
 #ifndef __TOKEN_VECTOR_H__
 #define __TOKEN_VECTOR_H__
 
+#include "file_map.hpp"
 #include "reader.hpp"
 #include "index.hpp"
 #include "file.hpp"
@@ -149,17 +150,19 @@ const std::string& asString(uint8_t word);
 class Vector
 {
 
+    friend std::ostream& operator<< (std::ostream& outputStream, const token::Vector& tokens);
+
 public:
 
     Vector(const File   & file,
-           const Reader & reader,
-           Index        & index);
-
-    void pushBack(const uint8_t word, 
-                  const index::Status indexStatus = index::Status::DROP_LEXEME);
+           const Reader & reader);
 
     std::size_t size() const;
 
+    const std::string& filePath() const;
+
+    void pushBack(const uint8_t word, 
+                  const index::Status indexStatus = index::Status::DROP_LEXEME);
 
     template <class UnaryPred>
     void trim(const UnaryPred& isTrimable)
@@ -170,35 +173,36 @@ public:
 
         for (std::size_t i = 0; i < size(); i++)
         {
-            const auto& word = words[i];
+            const auto& word = _words[i];
 
             if (!isTrimable(word))
             {
-                trimedWords     .push_back(word        );
-                trimedOffsets   .push_back(offsets[i]  );
-                trimedLexemeIDs .push_back(lexemeIDs[i]);
+                trimedWords     .push_back( word        );
+                trimedOffsets   .push_back(_offsets[i]  );
+                trimedLexemeIDs .push_back(_lexemeIDs[i]);
             }
         }
 
-        std::swap(words    , trimedWords    );
-        std::swap(offsets  , trimedOffsets  );
-        std::swap(lexemeIDs, trimedLexemeIDs);
+        std::swap(_words    , trimedWords    );
+        std::swap(_offsets  , trimedOffsets  );
+        std::swap(_lexemeIDs, trimedLexemeIDs);
     }
 
 private:
 
+    static Index _index;
+
     const File&    _file;
     const Reader&  _reader;
-    Index&         _index;
+ 
+    const file::Map _fileMap;
 
     const uint8_t* _prevReader;
     std::size_t    _prevOffset;
 
-public: // Second public for members memory layout
-
-    std::vector<Token>       words;
-    std::vector<std::size_t> offsets;
-    std::vector<std::size_t> lexemeIDs;
+    std::vector<Token>       _words;
+    std::vector<std::size_t> _offsets;
+    std::vector<std::size_t> _lexemeIDs;
 };
 
 } // end token namespace

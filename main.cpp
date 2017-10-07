@@ -7,47 +7,58 @@
 #include "error.hpp"
 #include "file.hpp"
 
-#include <system_error>
-#include <algorithm>
 #include <iostream>
 #include <cstdlib>
 #include <iomanip>
 #include <string>
 
-
-int main()
+int main(int argc, char** argv)
 {
-    const auto& [file, error] = file::make("data/test.txt");
+    std::vector<std::string> args;
 
-    if (!error)
+    for (int i = 1; i < argc; i++)
     {
-        Index index;
+        args.emplace_back(argv[i]);
+    }
 
-        const auto& fileMap = file.makeFileMap();
+    std::vector<token::Vector> tokenVectors;
 
-        auto&& tokens = lexer::makeTokensAndIndex(file, index);
+    for (const auto& filePath : args)
+    {
+        auto&& [file, error] = file::make(filePath);
 
-        for (std::size_t i = 0; i < tokens.size(); i++)
+        if (!error)
         {
-            const auto& word     = tokens  .words[i];
-            const auto& location = fileMap .searchLocation (tokens.offsets[i]);
-            const auto& lexeme   = index   .searchLexeme   (tokens.lexemeIDs[i], word);
+            tokenVectors.emplace_back
+            (
+                lexer::makeTokenVector(file)
+            );
 
-            std::cout                        << std::left  << std::setw(12)
-                    << token::asString(word) << std::right << std::setw (2)
-                    << location.line << ':'  << std::right << std::setw (2)
-                    << location.col          << std::right << std::setw (4);
-
-            if (!lexeme.empty())
-            {
-                std::cout << "(\"" << lexeme << "\")";
-            }
-        
-            std::cout << std::endl;
+            file.freeBuffer(); // save some memory
         }
+        else if (error == Error::FILE_NOT_FOUND)
+        {
+            std::cerr << "Error: Could not find the file '" << filePath << "'." << std::endl;
+            return EXIT_FAILURE;
+        }
+        else if (error == Error::FILE_NOT_REGULAR)
+        {
+            std::cerr << "Error: '" << filePath << "' is not a regular file." << std::endl;
+            return EXIT_FAILURE;
+        }
+        else
+        {
+            std::cerr << "Unkown error." << std::endl;
+            return EXIT_FAILURE;            
+        }    
+    }
 
-        // Trim white spaces and comments before parsing.
-        tokens.trim
+    for (auto&& tokenVector : tokenVectors)
+    {
+        std::cout << tokenVector << std::endl;
+
+        // Trim white spaces and comments before parsing 
+        tokenVector.trim
         (
             []
             (const Token& token)
@@ -56,23 +67,7 @@ int main()
                        token == token::COMMENT;
             }
         );
-
-        //start parsing here...
-
-        return EXIT_SUCCESS;
-    }
-    else if (error == Error::FILE_NOT_FOUND)
-    {
-        std::cerr << "Could not find the file." << std::endl;
-    }
-    else if (error == Error::FILE_NOT_REGULAR)
-    {
-        std::cerr << "The file provided, is not a regular file." << std::endl;
-    }
-    else
-    {
-        std::cerr << "Unkown error." << std::endl;
     }
 
-    return EXIT_FAILURE;
+    return EXIT_SUCCESS;
 }

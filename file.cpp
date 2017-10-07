@@ -1,11 +1,11 @@
 #include "file.hpp"
 
 #include "file_map.hpp"
+#include "location.hpp"
 #include "reader.hpp"
 #include "error.hpp"
 
 #include <experimental/filesystem>
-#include <system_error>
 #include <cstddef>
 #include <fstream>
 #include <string>
@@ -16,10 +16,11 @@
 namespace stdx = std::experimental;
 
 File::File(const std::string& pathAsString,
-           std::error_code& error,
+           Error& error,
            std::size_t margin,
            uint8_t fill) :
-    _eof{NULL}
+    _eof{NULL},
+    _pathAsString{pathAsString}
 {
     checkPath (pathAsString, error);
 
@@ -34,25 +35,30 @@ Reader File::makeReader() const
     return Reader{_buffer.data()};
 }
 
-FileMap File::makeFileMap() const
+file::Map File::makeMap() const
 {
-    return FileMap{*this};
+    return file::Map{*this};
+}
+
+const std::string& File::pathAsString() const
+{
+    return _pathAsString;
 }
 
 void File::checkPath(const std::string& pathAsString,
-                     std::error_code& errorCode)
+                     Error& error)
 {
     stdx::filesystem::path path{pathAsString};
 
     if (!stdx::filesystem::exists(path))
     {
-        errorCode = error::make(Error::FILE_NOT_FOUND);
+        error = Error::FILE_NOT_FOUND;
         return;
     }
 
     if (!stdx::filesystem::is_regular_file(path))
     {
-        errorCode = error::make(Error::FILE_NOT_REGULAR);
+        error = Error::FILE_NOT_REGULAR;
         return;
     }
 }
@@ -91,13 +97,19 @@ void File::fillBuffer(const std::string& pathAsString,
     _eof  = _buffer.data() + fileSize;
 }
 
+void File::freeBuffer()
+{
+    std::vector<uint8_t>{}.swap(_buffer);
+}
+
 namespace file
 {
-    std::tuple<File, std::error_code> make(const std::string pathAsString)
-    {
-        std::error_code errorCode;
 
-        return std::make_tuple(File{pathAsString, errorCode}, errorCode);
-    }
+std::tuple<File, Error> make(const std::string pathAsString)
+{
+    Error error;
 
+    return std::make_tuple(File{pathAsString, error}, error);
+}
+    
 } // end file namespace

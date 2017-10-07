@@ -252,11 +252,11 @@ bool matchFloatting(Reader& reader)
     return false;
 }
 
-token::Vector makeTokensAndIndex(const File& file, Index& index)
+token::Vector makeTokenVector(const File& file)
 {
     auto&& reader = file.makeReader();
 
-    token::Vector tokens{file, reader, index};
+    token::Vector tokens{file, reader};
 
     while (reader::isValid(reader, file))
     {

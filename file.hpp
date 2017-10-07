@@ -3,16 +3,21 @@
 
 #include "location.hpp"
 #include "reader.hpp"
+#include "error.hpp"
 #include "token.hpp"
 #include "lexer.hpp"
 
-#include <system_error>
 #include <cstddef>
 #include <string>
 #include <vector>
 #include <tuple>
 
-class FileMap;
+namespace file
+{
+
+class Map;
+
+} // end file namespace
 
 class File
 {
@@ -24,18 +29,22 @@ public:
     File() = delete;
 
     File(const std::string& pathAsString,
-         std::error_code& errorCode,
+         Error& error,
          std::size_t margin = 0x20,
          uint8_t fill = 0x20);
 
     Reader makeReader() const;
 
-    FileMap makeFileMap() const;
+    file::Map makeMap() const;
+
+    const std::string& pathAsString() const;
+
+    void freeBuffer();
 
 private:
 
     void checkPath(const std::string& pathAsString,
-                   std::error_code& errorCode);
+                   Error& error);
 
     void fillBuffer(const std::string& pathAsString,
                     std::size_t margin,
@@ -43,11 +52,13 @@ private:
 
     const uint8_t*           _eof;
     std::vector<uint8_t>     _buffer;
+    const std::string        _pathAsString;
 };
 
 namespace file
 {
-    std::tuple<File, std::error_code> make(const std::string pathAsString);
+
+std::tuple<File, Error> make(const std::string pathAsString);
 
 } // end file namespace
 
