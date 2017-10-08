@@ -37,16 +37,6 @@ bool isPlusOrMinus(char c)
             c == '-');
 }
 
-bool isDot(char c)
-{
-    return c == '.';
-}
-
-bool isNewLine(char c)
-{
-    return c == '\n';
-}
-
 bool isAlphaOrUnderscore(char c)
 {
     return ((c >= 'a'   && 
@@ -88,7 +78,7 @@ bool matchComment(Reader& reader, const File& file)
         {
             reader += 1;
         }
-        while (!isNewLine(reader.asChar()) && 
+        while (!reader.match('\n') && 
                 reader::isValid(reader, file));
 
         return true;
@@ -157,7 +147,7 @@ bool matchInteger(Reader& reader)
     }
     while (isNum(reader.asChar()));
 
-    if (isDot(reader.asChar()))
+    if (reader.match('.'))
     {
         reader.restore();
         return false;
@@ -170,86 +160,84 @@ bool matchFloatting(Reader& reader)
 {
     char currentChar = reader.asChar();
 
-    if (isNum(currentChar) || isDot(currentChar))
+    if (!isNum(currentChar) && !reader.match('.'))
     {
-        if (isDot(currentChar))
+        return false;
+    }
+
+    reader.capture();
+
+    if (reader.match('.'))
+    {
+        reader += 1;
+
+        if (!isNum(reader.asChar()))
         {
-            reader.capture();
-
-            reader += 1;
-
-            if (!isNum(reader.asChar()))
-            {
-                reader.restore();
-                return false;
-            }
-
-            do
-            {
-               reader += 1;
-            }
-            while (isNum(reader.asChar()));
+            reader.restore();
+            return false;
         }
 
-        if (isNum(currentChar))
-        {
-            reader.capture();
-
-            do
-            {
-               reader += 1;
-            }
-            while (isNum(reader.asChar()));
-
-            if (!isDot(reader.asChar()))
-            {
-                reader.restore();
-                return false;
-            }
-
-            do
-            {
-                reader += 1;
-            }
-            while (isNum(reader.asChar()));
-        }
-
-        reader.capture();
-
-        if (isExponant(reader.asChar()))
+        do
         {
             reader += 1;
         }
+        while (isNum(reader.asChar()));
+    }
 
-        currentChar = reader.asChar();
+    if (isNum(currentChar))
+    {
+        do
+        {
+            reader += 1;
+        }
+        while (isNum(reader.asChar()));
 
-        if (!isPlusOrMinus(currentChar) &&
-            !isNum        (currentChar))
+        if (!reader.match('.'))
+        {
+            reader.restore();
+            return false;
+        }
+
+        do
+        {
+            reader += 1;
+        }
+        while (isNum(reader.asChar()));
+    }
+
+    reader.capture();
+
+    if (isExponant(reader.asChar()))
+    {
+        reader += 1;
+    }
+
+    currentChar = reader.asChar();
+
+    if (!isPlusOrMinus(currentChar) &&
+        !isNum        (currentChar))
+    {
+        reader.restore();
+        return true;
+    }
+
+    if (isPlusOrMinus(currentChar))
+    {
+        reader += 1;
+
+        if (!isNum(reader.asChar()))
         {
             reader.restore();
             return true;
         }
-
-        if (isPlusOrMinus(currentChar))
-        {
-            reader += 1;
-
-            if (!isNum(reader.asChar()))
-            {
-                reader.restore();
-                return true;
-            }
-        }
-
-        while (isNum(reader.asChar()))
-        {
-            reader += 1;
-        }
-
-        return true;
     }
 
-    return false;
+    while (isNum(reader.asChar()))
+    {
+        reader += 1;
+    }
+
+        return true;
 }
 
 } // end lexer namespace
