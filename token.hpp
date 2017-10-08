@@ -15,7 +15,7 @@ using Token = uint8_t;
 namespace token
 {
 
-enum : uint8_t
+enum : Token
 {
     COMMENT,
     WHITE_SPACE,
@@ -144,13 +144,35 @@ static const std::string AS_LEXEME[] =
         ""
     };
 
+class Pretty
+{
 
-const std::string& asString(uint8_t word);
+    friend std::ostream& operator<< (std::ostream& outputStream, const Pretty& token);
+
+public:
+
+    Pretty(const Token token,
+           const Location& location,
+           const std::string& lexeme,
+           const std::string& filepath);
+
+    const std::string& asString() const;
+
+private:
+
+    const Token _token;
+
+public:
+    
+    const Location      location;
+    const std::string & lexeme;
+    const std::string & filePath;
+};
 
 class Vector
 {
 
-    friend std::ostream& operator<< (std::ostream& outputStream, const token::Vector& tokens);
+    friend std::ostream& operator<< (std::ostream& outputStream, const Vector& tokenVector);
 
 public:
 
@@ -162,29 +184,31 @@ public:
 
     const std::string& filePath() const;
 
-    void pushBack(const uint8_t word, 
+    Pretty operator[](const std::size_t i) const;
+
+    void pushBack(const Token token, 
                   const index::Status indexStatus = index::Status::DROP_LEXEME);
 
     template <class UnaryPred>
     void trim(const UnaryPred& isTrimable)
     {
-        std::vector<Token>       trimedWords;
+        std::vector<Token>       trimedTokens;
         std::vector<std::size_t> trimedOffsets;
         std::vector<std::size_t> trimedLexemeIDs;
 
         for (std::size_t i = 0; i < size(); i++)
         {
-            const auto& word = _words[i];
+            const auto& token = _tokens[i];
 
-            if (!isTrimable(word))
+            if (!isTrimable(token))
             {
-                trimedWords     .push_back( word        );
+                trimedTokens    .push_back( token       );
                 trimedOffsets   .push_back(_offsets[i]  );
                 trimedLexemeIDs .push_back(_lexemeIDs[i]);
             }
         }
 
-        std::swap(_words    , trimedWords    );
+        std::swap(_tokens   , trimedTokens   );
         std::swap(_offsets  , trimedOffsets  );
         std::swap(_lexemeIDs, trimedLexemeIDs);
     }
@@ -200,7 +224,7 @@ private:
     const uint8_t* _prevReader;
     std::size_t    _prevOffset;
 
-    std::vector<Token>       _words;
+    std::vector<Token>       _tokens;
     std::vector<std::size_t> _offsets;
     std::vector<std::size_t> _lexemeIDs;
 };

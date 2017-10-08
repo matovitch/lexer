@@ -61,7 +61,7 @@ int main(int argc, char** argv)
         tokenVector.trim
         (
             []
-            (const Token& token)
+            (const Token token)
             { 
                 return token == token::WHITE_SPACE ||
                        token == token::COMMENT;

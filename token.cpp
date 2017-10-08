@@ -14,9 +14,19 @@
 namespace token
 {
 
-const std::string& asString(uint8_t word)
+Pretty::Pretty(const Token token,
+               const Location& theLocation,
+               const std::string& theLexeme,
+               const std::string& theFilePath) :
+    _token   {token},
+    location {theLocation},
+    lexeme   {theLexeme},
+    filePath {theFilePath}
+{}
+
+const std::string& Pretty::asString() const
 {
-    return AS_STRING[word];
+    return token::AS_STRING[_token];
 }
 
 Vector::Vector(const File   & file,
@@ -32,7 +42,7 @@ Vector::Vector(const File   & file,
 
 std::size_t Vector::size() const
 {
-    return _words.size();
+    return _tokens.size();
 }
 
 const std::string& Vector::filePath() const
@@ -40,7 +50,7 @@ const std::string& Vector::filePath() const
     return _file.pathAsString;
 }
 
-void Vector::pushBack(const Token word, 
+void Vector::pushBack(const Token token, 
                       const index::Status indexStatus)
 {
     const uint8_t*    nextReader = _reader();
@@ -58,7 +68,7 @@ void Vector::pushBack(const Token word,
 
     const std::size_t offset = _prevOffset;
 
-    _words    .push_back(word    );
+    _tokens   .push_back(token   );
     _offsets  .push_back(offset  );
     _lexemeIDs.push_back(lexemeID);
 
@@ -66,30 +76,43 @@ void Vector::pushBack(const Token word,
     _prevOffset = nextOffset;
 }
 
-std::ostream& operator<< (std::ostream& outputStream, const token::Vector& tokens)
+Pretty Vector::operator[](const std::size_t i) const
 {
-    const auto& fileMap = tokens._fileMap;
-    const auto& index   = tokens._index;
+    const auto& token    = _tokens[i];
+    const auto& location = _fileMap .searchLocation (_offsets[i]);
+    const auto& lexeme   = _index   .searchLexeme   (_lexemeIDs[i], token);
+    const auto& filePath = this->filePath();
 
-    outputStream << "Tokens from " << tokens.filePath() << ":" << std::endl;
+    return Pretty{token, location, lexeme, filePath};
+}
 
-    for (std::size_t i = 0; i < tokens.size(); i++)
+std::ostream& operator<< (std::ostream& outputStream, const token::Pretty& token)
+{
+    outputStream                       << std::left  << std::setw(12)
+        << token.asString()            << std::right << std::setw (2)
+        << token.location.line << ':'  << std::right << std::setw (2)
+        << token.location.col          << std::right << std::setw (4);
+
+    const auto& lexeme = token.lexeme;
+
+    if (!lexeme.empty())
     {
-        const auto& word     = tokens  ._words[i];
-        const auto& location = fileMap .searchLocation (tokens._offsets[i]);
-        const auto& lexeme   = index   .searchLexeme   (tokens._lexemeIDs[i], word);
+        outputStream << "(\"" << lexeme << "\")";
+    }
 
-        outputStream                 << std::left  << std::setw(12)
-            << token::asString(word) << std::right << std::setw (2)
-            << location.line << ':'  << std::right << std::setw (2)
-            << location.col          << std::right << std::setw (4);
+    return outputStream;
+}
 
-        if (!lexeme.empty())
-        {
-            outputStream << "(\"" << lexeme << "\")";
-        }
-    
-        outputStream << std::endl;
+std::ostream& operator<< (std::ostream& outputStream, const token::Vector& tokenVector)
+{
+    outputStream << "Tokens from " << tokenVector.filePath() << ":";
+
+    outputStream << std::endl
+                 << std::endl;
+
+    for (std::size_t i = 0; i < tokenVector.size(); i++)
+    {
+        outputStream << tokenVector[i] << std::endl;
     }
 
     return outputStream;
